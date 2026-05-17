@@ -6,9 +6,10 @@ import json
 from platformdirs import user_downloads_dir
 
 
-router = APIRouter()
+router = APIRout
 
 DOWNLOAD_DIR = Path(user_downloads_dir())
+
 DOWNLOAD_DIR.mkdir(exist_ok=True)
 
 @router.post("/send")
