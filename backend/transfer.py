@@ -3,10 +3,12 @@ from pathlib import Path
 import shutil
 import httpx
 import json
+from platformdirs import user_downloads_dir
+
 
 router = APIRouter()
 
-DOWNLOAD_DIR = Path.home() / "Downloads"
+DOWNLOAD_DIR = Path(user_downloads_dir())
 DOWNLOAD_DIR.mkdir(exist_ok=True)
 
 @router.post("/send")
