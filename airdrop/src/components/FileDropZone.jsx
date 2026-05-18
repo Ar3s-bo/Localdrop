@@ -14,11 +14,12 @@ function FileDropZone({ device, ws, me }) {
   }, [ws, me])
 
   function sendFile(file) {
+    console.log("me:", me, "ws:", ws)
     if (!ws || !me) return
     
     ws.send(JSON.stringify({
       type: "file_request",
-      from: me.ip,
+      from: me.name,
       to: device.ip,
       filename: file.name,
       size: file.size,

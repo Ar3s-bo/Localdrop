@@ -40,6 +40,11 @@ async def websocket_endpoint(websocket: WebSocket):
 def get_me():
     import socket
     return {"name": socket.gethostname(), "ip": get_local_ip()}
+
+@app.post("/notify")
+async def notify(data: dict):
+    await manager.broadcast(data)
+    return {"status": "ok"}
         
 if __name__ == "__main__":
     import uvicorn

@@ -23,22 +23,26 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws")
-    setWs(ws)
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
+    const timer = setTimeout(() => {
+      const websocket = new WebSocket("ws://localhost:8000/ws")
+      setWs(websocket)
       
-      if (data.type === "file_request") {
-        setIncomingRequest(data)
+      websocket.onmessage = (event) => {
+        console.log("Messaggio ricevuto:", event.data)
+        const data = JSON.parse(event.data)
+        if (data.type === "file_request" && data.to === me?.ip) {
+          setIncomingRequest(data)
+        }
       }
-    }
 
-    ws.onclose = () => {
-      console.log("WebSocket disconnesso")
-    }
+      websocket.onclose = () => {
+        console.log("WebSocket disconnesso")
+      }
 
-    return () => ws.close()
+      return () => websocket.close()
+    }, 1000)
+
+    return () => clearTimeout(timer)
   }, [])
 
   return (
