@@ -67,7 +67,16 @@ function App() {
           <p>{incomingRequest.filename} — {incomingRequest.size} bytes</p>
           <button onClick={() => setIncomingRequest(null)}>Rifiuta</button>
           <button onClick={() => {
-            // accetta - per ora solo chiude il popup
+            fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                path: incomingRequest.path,
+                target_ip: "127.0.0.1"
+              })
+            })
+            .then(res => res.json())
+            .then(data => console.log("trasferimento:", data))
             setIncomingRequest(null)
           }}>Accetta</button>
         </div>

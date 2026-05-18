@@ -17,14 +17,21 @@ function FileDropZone({ device, ws, me }) {
     console.log("me:", me, "ws:", ws)
     if (!ws || !me) return
     
-    ws.send(JSON.stringify({
-      type: "file_request",
-      from: me.name,
-      to: device.ip,
-      filename: file.name,
-      size: file.size,
-      file: file
-    }))
+    fetch(`http://${device.ip}:8000/notify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "file_request",
+        from: me.name,
+        from_ip: me.ip,
+        to: device.ip,
+        filename: file.name,
+        size: file.size,
+        path: file.path || ""
+      })
+    })
+    .then(res => console.log("notify risposta:", res.status))
+    .catch(err => console.error("notify errore:", err))
   }
 
   return (
