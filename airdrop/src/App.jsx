@@ -25,13 +25,14 @@ function App() {
 
         websocket.onmessage = (event) => {
           const data = JSON.parse(event.data)
+          console.log("meRef.current:", meRef.current)
           if (data.type === "file_request" && data.to === meRef.current?.ip) {
             setIncomingRequest(data)
           }
         }
 
         websocket.onclose = () => console.log("WebSocket disconnesso")
-      })
+      }, 2000)
   }, [])
 
   useEffect(() => {
