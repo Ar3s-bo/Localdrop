@@ -18,6 +18,19 @@ function App() {
       .then(data => {
         setMe(data)
         meRef.current = data
+
+        // connetti WebSocket solo dopo che me è pronto
+        const websocket = new WebSocket("ws://localhost:8000/ws")
+        setWs(websocket)
+
+        websocket.onmessage = (event) => {
+          const data = JSON.parse(event.data)
+          if (data.type === "file_request" && data.to === meRef.current?.ip) {
+            setIncomingRequest(data)
+          }
+        }
+
+        websocket.onclose = () => console.log("WebSocket disconnesso")
       })
   }, [])
 
@@ -27,28 +40,6 @@ function App() {
       .then(data => setDevices(data))
   }, [])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const websocket = new WebSocket("ws://localhost:8000/ws")
-      setWs(websocket)
-      
-    websocket.onmessage = (event) => {
-      console.log("Messaggio ricevuto:", event.data)
-      const data = JSON.parse(event.data)
-      console.log("data.to:", data.to, "me.ip:", me?.ip)
-      if (data.type === "file_request" && data.to === meRef.current?.ip) {
-        setIncomingRequest(data)
-      }
-    }
-      websocket.onclose = () => {
-        console.log("WebSocket disconnesso")
-      }
-
-      return () => websocket.close()
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   return (
     <div className="container">
