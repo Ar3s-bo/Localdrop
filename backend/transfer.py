@@ -22,6 +22,8 @@ async def receive_file(file: UploadFile = File(...)):
 
 @router.post("/send-path")
 async def send_from_path(data: dict):
+    print("ricevuta richiesta di trasferimento:", data["path"])
+    print("target:", data["target_ip"])
     file_path = Path(data["path"])
     target_ip = data["target_ip"]
     
