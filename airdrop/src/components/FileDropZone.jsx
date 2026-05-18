@@ -7,18 +7,11 @@ function FileDropZone({ device, ws, me }) {
   useEffect(() => {
     const unlisten = listen("tauri://drag-drop", (event) => {
       const filePath = event.payload.paths[0]
-      
-      fetch("http://localhost:8000/send-path", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: filePath, target_ip: device.ip })
-      })
-      .then(res => res.json())
-      .then(data => console.log("Successo:", data))
-      .catch(err => console.error("Errore:", err))
+      const fakeFile = { name: filePath.split("\\").pop(), size: 0, path: filePath }
+      sendFile(fakeFile)
     })
     return () => { unlisten.then(f => f()) }
-  }, [])
+  }, [ws, me])
 
   function sendFile(file) {
     if (!ws || !me) return
