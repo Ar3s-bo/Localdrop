@@ -1,19 +1,24 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import "./App.css"
 import FileDropZone from "./components/FileDropZone"
+
 
 function App() {
   const [devices, setDevices] = useState([])
   const [ws, setWs] = useState(null)
 
   const [me, setMe] = useState(null)
+  const meRef = useRef(null)
 
   const [incomingRequest, setIncomingRequest] = useState(null)
 
   useEffect(() => {
     fetch("http://localhost:8000/me")
       .then(res => res.json())
-      .then(data => setMe(data))
+      .then(data => {
+        setMe(data)
+        meRef.current = data
+      })
   }, [])
 
   useEffect(() => {
@@ -27,14 +32,14 @@ function App() {
       const websocket = new WebSocket("ws://localhost:8000/ws")
       setWs(websocket)
       
-      websocket.onmessage = (event) => {
-        console.log("Messaggio ricevuto:", event.data)
-        const data = JSON.parse(event.data)
-        if (data.type === "file_request" && data.to === me?.ip) {
-          setIncomingRequest(data)
-        }
+    websocket.onmessage = (event) => {
+      console.log("Messaggio ricevuto:", event.data)
+      const data = JSON.parse(event.data)
+      console.log("data.to:", data.to, "me.ip:", me?.ip)
+      if (data.type === "file_request" && data.to === meRef.current?.ip) {
+        setIncomingRequest(data)
       }
-
+    }
       websocket.onclose = () => {
         console.log("WebSocket disconnesso")
       }
