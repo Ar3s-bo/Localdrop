@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from discovery import start_discovery, peers
 from transfer import router as transfer_router
+from ws_manager import manager
 
 app = FastAPI()
 
@@ -24,6 +25,16 @@ def startup_event():
     device_name = socket.gethostname()
     start_discovery(device_name)
     
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            await manager.broadcast(data)
+    except:
+        manager.disconnect(websocket)
+        
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

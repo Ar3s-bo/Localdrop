@@ -6,7 +6,7 @@ import json
 from platformdirs import user_downloads_dir
 
 
-router = APIRout
+router = APIRouter()
 
 DOWNLOAD_DIR = Path(user_downloads_dir())
 
