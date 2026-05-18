@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { listen } from "@tauri-apps/api/event"
 
 
-function FileDropZone({ device }) {
+function FileDropZone({ device, ws, me }) {
 
   useEffect(() => {
     const unlisten = listen("tauri://drag-drop", (event) => {
@@ -21,15 +21,16 @@ function FileDropZone({ device }) {
   }, [])
 
   function sendFile(file) {
-    const formData = new FormData()
-    formData.append("file", file)
-    fetch(`http://${device.ip}:8000/send`, {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => console.log("Successo:", data))
-    .catch(err => console.error("Errore:", err))
+    if (!ws || !me) return
+    
+    ws.send(JSON.stringify({
+      type: "file_request",
+      from: me.ip,
+      to: device.ip,
+      filename: file.name,
+      size: file.size,
+      file: file
+    }))
   }
 
   return (

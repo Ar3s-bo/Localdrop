@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from discovery import start_discovery, peers
 from transfer import router as transfer_router
 from ws_manager import manager
+from discovery import start_discovery, peers, get_local_ip
 
 app = FastAPI()
 
@@ -34,6 +35,11 @@ async def websocket_endpoint(websocket: WebSocket):
             await manager.broadcast(data)
     except:
         manager.disconnect(websocket)
+
+@app.get("/me")
+def get_me():
+    import socket
+    return {"name": socket.gethostname(), "ip": get_local_ip()}
         
 if __name__ == "__main__":
     import uvicorn
