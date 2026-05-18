@@ -15,6 +15,7 @@ DOWNLOAD_DIR.mkdir(exist_ok=True)
 @router.post("/send")
 async def receive_file(file: UploadFile = File(...)):
     file_path = DOWNLOAD_DIR / file.filename
+    print("salvo file in:", file_path)
     with open(file_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     return {"status": "ok", "filename": file.filename}

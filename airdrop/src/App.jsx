@@ -64,7 +64,7 @@ function App() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 path: incomingRequest.path,
-                target_ip: "127.0.0.1"
+                target_ip: me.ip
               })
             })
             .then(res => res.json())
