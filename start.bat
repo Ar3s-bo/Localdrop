@@ -1,6 +1,5 @@
 @echo off
-cd E:\AIRDROP--APP\backend
-call E:\venv-localdrop\Scripts\activate
-start python main.py
-cd E:\AIRDROP--APP\airdrop
+start "Backend" cmd /k E:\AIRDROP--APP\start-backend.bat
+timeout /t 2
+cd /d E:\AIRDROP--APP\airdrop
 npm run tauri dev
