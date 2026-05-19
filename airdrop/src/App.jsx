@@ -46,29 +46,35 @@ function App() {
     <div className="container">
       <h1>LocalDrop</h1>
       <h2>Dispositivi trovati</h2>
-      {devices.map(device => (
-        <div key={device.ip}>
-          <p>{device.name} — {device.ip}</p>
-          <FileDropZone device={device} ws={ws} me={me} />
-        </div>
+      {devices
+        .filter(device => device.ip !== me?.ip)
+        .map(device => (
+          <div key={device.ip}>
+            <p>{device.name} — {device.ip}</p>
+            <FileDropZone device={device} ws={ws} me={me} />
+          </div>
       ))}
 
       {incomingRequest && (
         <div className="incoming-modal">
-          <h2>{incomingRequest.from} vuole mandarti un file</h2>
-          <p>{incomingRequest.filename} — {incomingRequest.size} bytes</p>
+          <h2>{incomingRequest.from} vuole mandarti {incomingRequest.files?.length} file</h2>
+          {incomingRequest.files?.map((file, index) => (
+            <div key={index}>
+              <p>{file.filename} — {file.size} bytes</p>
+            </div>
+          ))}
           <button onClick={() => setIncomingRequest(null)}>Rifiuta</button>
           <button onClick={() => {
-            fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                path: incomingRequest.path,
-                target_ip: me.ip
+            incomingRequest.files.forEach(file => {
+              fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  path: file.path,
+                  target_ip: me.ip
+                })
               })
             })
-            .then(res => res.json())
-            .then(data => console.log("trasferimento:", data))
             setIncomingRequest(null)
           }}>Accetta</button>
         </div>
