@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useEffect } from "react"
 import { listen } from "@tauri-apps/api/event"
 
 
