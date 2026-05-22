@@ -20,25 +20,42 @@ function FileDropZone({ device, ws, me }) {
   }, [ws, me])
 
   function sendFiles() {
-    if (!ws || !me || selectedFiles.length === 0) return
-    
-    fetch(`http://${device.ip}:8000/notify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "file_request",
-        from: me.name,
-        from_ip: me.ip,
-        to: device.ip,
-        files: selectedFiles.map(f => ({
-          filename: f.name,
-          size: f.size,
-          path: f.path || f.name
-        }))
+    if (!me || selectedFiles.length === 0) return
+
+    // Separa file con path (drag&drop) e file senza path (selettore)
+    const filesWithPath = selectedFiles.filter(f => f.path && f.path !== f.name)
+    const filesWithoutPath = selectedFiles.filter(f => !f.path || f.path === f.name)
+
+    // File con path — manda via notifica WebSocket come prima
+    if (filesWithPath.length > 0) {
+      fetch(`http://${device.ip}:8000/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "file_request",
+          from: me.name,
+          from_ip: me.ip,
+          to: device.ip,
+          files: filesWithPath.map(f => ({
+            filename: f.name,
+            size: f.size,
+            path: f.path
+          }))
+        })
+      })
+    }
+
+    // File senza path — manda direttamente
+    filesWithoutPath.forEach(file => {
+      const formData = new FormData()
+      formData.append("file", file)
+      fetch(`http://${device.ip}:8000/send`, {
+        method: "POST",
+        body: formData
       })
     })
-    .then(res => res.json())
-    .then(() => setSelectedFiles([]))
+
+    setSelectedFiles([])
   }
 
   return (
