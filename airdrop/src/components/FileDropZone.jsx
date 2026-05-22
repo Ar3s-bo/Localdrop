@@ -109,6 +109,10 @@ function FileDropZone({ device, ws, me }) {
                 <span>📄</span>
                 <span>{file.name}</span>
                 <span className="file-item-size">{file.size > 0 ? `${(file.size/1024/1024).toFixed(1)} MB` : "—"}</span>
+                <span 
+                  style={{ cursor: "pointer", color: "rgba(255,255,255,0.4)", marginLeft: "8px" }}
+                  onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
+                >✕</span>
               </motion.div>
             ))}
             <button className="send-btn" onClick={sendFiles}>
@@ -118,6 +122,7 @@ function FileDropZone({ device, ws, me }) {
         )}
       </AnimatePresence>
     </motion.div>
+    
   )
 }
 
