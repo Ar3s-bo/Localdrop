@@ -40,9 +40,16 @@ function App() {
   }, [])
 
   useEffect(() => {
-    fetch("http://localhost:8000/peers")
-      .then(res => res.json())
-      .then(data => setDevices(data))
+    const fetchDevices = () => {
+      fetch("http://localhost:8000/peers")
+        .then(res => res.json())
+        .then(data => setDevices(data))
+    }
+    
+    fetchDevices() // carica subito
+    const interval = setInterval(fetchDevices, 5000) // aggiorna ogni 5 secondi
+    
+    return () => clearInterval(interval) // pulisce quando il componente si smonta
   }, [])
 
 
