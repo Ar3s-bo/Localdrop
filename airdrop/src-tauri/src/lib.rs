@@ -1,14 +1,24 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use std::process::Command;
+use std::thread;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    thread::spawn(|| {
+        #[cfg(target_os = "windows")]
+        Command::new("cmd")
+            .args(["/C", "E:\\venv-localdrop\\Scripts\\python.exe E:\\AIRDROP--APP\\backend\\main.py"])
+            .spawn()
+            .expect("failed to start backend");
+
+        #[cfg(target_os = "linux")]
+        Command::new("sh")
+            .args(["-c", "/home/sad/venv-localdrop/bin/python3 /home/sad/Localdrop/backend/main.py"])
+            .spawn()
+            .expect("failed to start backend");
+    });
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
