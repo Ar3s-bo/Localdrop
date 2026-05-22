@@ -47,22 +47,24 @@ function App() {
 
   return (
     <div className="container">
-      <h1>LocalDrop</h1>
-      <h2>Dispositivi trovati</h2>
-      {devices
-        .filter(device => device.ip !== me?.ip)
-        .map(device => (
-          <div key={device.ip}>
-            <p>{device.name} — {device.ip}</p>
-            <FileDropZone device={device} ws={ws} me={me} />
-          </div>
-      ))}
+      <h1 className="app-title">LocalDrop</h1>
+      <p className="app-subtitle">rete locale · trasferimento istantaneo</p>
+      
+      <p className="section-label">Dispositivi disponibili</p>
+      <div className="devices-grid">
+        {devices
+          .filter(device => device.ip !== me?.ip)
+          .map(device => (
+            <FileDropZone key={device.ip} device={device} ws={ws} me={me} />
+          ))}
+      </div>
 
       {incomingRequest && (
         <div className="incoming-modal">
           <h2>{incomingRequest.from} vuole mandarti {incomingRequest.files?.length} file</h2>
+          <p>Seleziona quelli che vuoi ricevere</p>
           {incomingRequest.files?.map((file, index) => (
-            <div key={index}>
+            <div key={index} className="checkbox-row">
               <input
                 type="checkbox"
                 checked={acceptedFiles.includes(file.filename)}
@@ -74,29 +76,29 @@ function App() {
                   }
                 }}
               />
-              <span>{file.filename} — {file.size} bytes</span>
+              <span className="checkbox-filename">{file.filename}</span>
+              <span className="checkbox-size">{file.size} bytes</span>
             </div>
           ))}
-          <button onClick={() => {
-            setIncomingRequest(null)
-            setAcceptedFiles([])
-          }}>Rifiuta</button>
-          <button onClick={() => {
-            incomingRequest.files
-              .filter(file => acceptedFiles.includes(file.filename))
-              .forEach(file => {
-                fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    path: file.path,
-                    target_ip: me.ip
+          <div className="btn-row">
+            <button className="btn-reject" onClick={() => {
+              setIncomingRequest(null)
+              setAcceptedFiles([])
+            }}>Rifiuta</button>
+            <button className="btn-accept" onClick={() => {
+              incomingRequest.files
+                .filter(file => acceptedFiles.includes(file.filename))
+                .forEach(file => {
+                  fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ path: file.path, target_ip: me.ip })
                   })
                 })
-              })
-            setIncomingRequest(null)
-            setAcceptedFiles([])
-          }}>Accetta</button>
+              setIncomingRequest(null)
+              setAcceptedFiles([])
+            }}>Accetta ✓</button>
+          </div>
         </div>
       )}
     </div>

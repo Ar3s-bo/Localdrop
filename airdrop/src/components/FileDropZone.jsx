@@ -59,27 +59,45 @@ function FileDropZone({ device, ws, me }) {
   }
 
   return (
-    <div className="drop-zone">
-      <p>Invia file a {device.name}</p>
-      <input
-        type="file"
-        multiple
-        onChange={(e) => {
-          const files = Array.from(e.target.files)
-          setSelectedFiles(prev => [...prev, ...files])
-        }}
-      />
-
-      {selectedFiles.map((file, index) => (
-        <div key={index}>
-          <p>{file.name}</p>
+    <div className="glass-card">
+      <div className="device-row">
+        <div className="device-icon">💻</div>
+        <div>
+          <div className="device-name">{device.name}</div>
+          <div className="device-ip">{device.ip}</div>
         </div>
-      ))}
+        <div className="device-status">online</div>
+      </div>
+
+      <div className="drop-zone" onClick={() => document.getElementById(`file-input-${device.ip}`).click()}>
+        <p>☁️</p>
+        <p>Trascina file qui</p>
+        <span>o clicca per selezionare</span>
+        <input
+          id={`file-input-${device.ip}`}
+          type="file"
+          multiple
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const files = Array.from(e.target.files)
+            setSelectedFiles(prev => [...prev, ...files])
+          }}
+        />
+      </div>
 
       {selectedFiles.length > 0 && (
-        <button onClick={() => sendFiles()}>
-          Invia {selectedFiles.length} file
-        </button>
+        <div className="file-list">
+          {selectedFiles.map((file, index) => (
+            <div key={index} className="file-item">
+              <span>📄</span>
+              <span>{file.name}</span>
+              <span className="file-item-size">{file.size > 0 ? `${(file.size/1024/1024).toFixed(1)} MB` : "—"}</span>
+            </div>
+          ))}
+          <button className="send-btn" onClick={sendFiles}>
+            Invia {selectedFiles.length} file →
+          </button>
+        </div>
       )}
     </div>
   )
