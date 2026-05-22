@@ -1,4 +1,4 @@
-import { useEffect, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { listen } from "@tauri-apps/api/event"
 
 
@@ -6,10 +6,15 @@ function FileDropZone({ device, ws, me }) {
   const [selectedFiles, setSelectedFiles] = useState([])
 
   useEffect(() => {
+    console.log("Listening for drag-drop events...")
     const unlisten = listen("tauri://drag-drop", (event) => {
-      const filePath = event.payload.paths[0]
-      const fakeFile = { name: filePath.split("\\").pop(), size: 0, path: filePath }
-      sendFiles([fakeFile])
+      const paths = event.payload.paths
+      const fakeFiles = paths.map(p => ({ 
+        name: p.split("\\").pop().split("/").pop(), 
+        size: 0, 
+        path: p 
+      }))
+      setSelectedFiles(prev => [...prev, ...fakeFiles])
     })
     return () => { unlisten.then(f => f()) }
   }, [ws, me])
