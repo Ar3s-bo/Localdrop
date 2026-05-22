@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { listen } from "@tauri-apps/api/event"
-
+import { motion, AnimatePresence } from "framer-motion"
 
 function FileDropZone({ device, ws, me }) {
   const [selectedFiles, setSelectedFiles] = useState([])
@@ -59,7 +59,12 @@ function FileDropZone({ device, ws, me }) {
   }
 
   return (
-    <div className="glass-card">
+    <motion.div 
+      className="glass-card"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className="device-row">
         <div className="device-icon">💻</div>
         <div>
@@ -85,21 +90,34 @@ function FileDropZone({ device, ws, me }) {
         />
       </div>
 
-      {selectedFiles.length > 0 && (
-        <div className="file-list">
-          {selectedFiles.map((file, index) => (
-            <div key={index} className="file-item">
-              <span>📄</span>
-              <span>{file.name}</span>
-              <span className="file-item-size">{file.size > 0 ? `${(file.size/1024/1024).toFixed(1)} MB` : "—"}</span>
-            </div>
-          ))}
-          <button className="send-btn" onClick={sendFiles}>
-            Invia {selectedFiles.length} file →
-          </button>
-        </div>
-      )}
-    </div>
+      <AnimatePresence>
+        {selectedFiles.length > 0 && (
+          <motion.div 
+            className="file-list"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            {selectedFiles.map((file, index) => (
+              <motion.div 
+                key={index} 
+                className="file-item"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <span>📄</span>
+                <span>{file.name}</span>
+                <span className="file-item-size">{file.size > 0 ? `${(file.size/1024/1024).toFixed(1)} MB` : "—"}</span>
+              </motion.div>
+            ))}
+            <button className="send-btn" onClick={sendFiles}>
+              Invia {selectedFiles.length} file →
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }
 

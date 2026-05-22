@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import "./App.css"
 import FileDropZone from "./components/FileDropZone"
+import { motion, AnimatePresence } from "framer-motion"
 
 
 function App() {
@@ -59,48 +60,57 @@ function App() {
           ))}
       </div>
 
-      {incomingRequest && (
-        <div className="incoming-modal">
-          <h2>{incomingRequest.from} vuole mandarti {incomingRequest.files?.length} file</h2>
-          <p>Seleziona quelli che vuoi ricevere</p>
-          {incomingRequest.files?.map((file, index) => (
-            <div key={index} className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={acceptedFiles.includes(file.filename)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setAcceptedFiles(prev => [...prev, file.filename])
-                  } else {
-                    setAcceptedFiles(prev => prev.filter(f => f !== file.filename))
-                  }
-                }}
-              />
-              <span className="checkbox-filename">{file.filename}</span>
-              <span className="checkbox-size">{file.size} bytes</span>
-            </div>
-          ))}
-          <div className="btn-row">
-            <button className="btn-reject" onClick={() => {
-              setIncomingRequest(null)
-              setAcceptedFiles([])
-            }}>Rifiuta</button>
-            <button className="btn-accept" onClick={() => {
-              incomingRequest.files
-                .filter(file => acceptedFiles.includes(file.filename))
-                .forEach(file => {
-                  fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ path: file.path, target_ip: me.ip })
+      <AnimatePresence>
+        {incomingRequest && (
+          <motion.div 
+            className="incoming-modal"
+            initial={{ opacity: 0, scale: 0.9, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h2>{incomingRequest.from} vuole mandarti {incomingRequest.files?.length} file</h2>
+            <p>Seleziona quelli che vuoi ricevere</p>
+            
+            {incomingRequest.files?.map((file, index) => (
+              <div key={index} className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={acceptedFiles.includes(file.filename)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAcceptedFiles(prev => [...prev, file.filename])
+                    } else {
+                      setAcceptedFiles(prev => prev.filter(f => f !== file.filename))
+                    }
+                  }}
+                />
+                <span className="checkbox-filename">{file.filename}</span>
+                <span className="checkbox-size">{file.size} bytes</span>
+              </div>
+            ))}
+            <div className="btn-row">
+              <button className="btn-reject" onClick={() => {
+                setIncomingRequest(null)
+                setAcceptedFiles([])
+              }}>Rifiuta</button>
+              <button className="btn-accept" onClick={() => {
+                incomingRequest.files
+                  .filter(file => acceptedFiles.includes(file.filename))
+                  .forEach(file => {
+                    fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ path: file.path, target_ip: me.ip })
+                    })
                   })
-                })
-              setIncomingRequest(null)
-              setAcceptedFiles([])
-            }}>Accetta ✓</button>
-          </div>
-        </div>
-      )}
+                setIncomingRequest(null)
+                setAcceptedFiles([])
+              }}>Accetta ✓</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
