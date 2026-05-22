@@ -15,6 +15,15 @@ html, body {
   height: 100%;
 }
 
+.file-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 body {
   font-family: 'Outfit', sans-serif;
   background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e);
