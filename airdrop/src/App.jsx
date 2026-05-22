@@ -12,6 +12,8 @@ function App() {
 
   const [incomingRequest, setIncomingRequest] = useState(null)
 
+  const [acceptedFiles, setAcceptedFiles] = useState([])
+
   useEffect(() => {
     fetch("http://localhost:8000/me")
       .then(res => res.json())
@@ -28,6 +30,7 @@ function App() {
           console.log("meRef.current:", meRef.current)
           if (data.type === "file_request" && data.to === meRef.current?.ip) {
             setIncomingRequest(data)
+            setAcceptedFiles(data.files.map(f => f.filename))
           }
         }
 
@@ -60,22 +63,39 @@ function App() {
           <h2>{incomingRequest.from} vuole mandarti {incomingRequest.files?.length} file</h2>
           {incomingRequest.files?.map((file, index) => (
             <div key={index}>
-              <p>{file.filename} — {file.size} bytes</p>
+              <input
+                type="checkbox"
+                checked={acceptedFiles.includes(file.filename)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setAcceptedFiles(prev => [...prev, file.filename])
+                  } else {
+                    setAcceptedFiles(prev => prev.filter(f => f !== file.filename))
+                  }
+                }}
+              />
+              <span>{file.filename} — {file.size} bytes</span>
             </div>
           ))}
-          <button onClick={() => setIncomingRequest(null)}>Rifiuta</button>
           <button onClick={() => {
-            incomingRequest.files.forEach(file => {
-              fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  path: file.path,
-                  target_ip: me.ip
+            setIncomingRequest(null)
+            setAcceptedFiles([])
+          }}>Rifiuta</button>
+          <button onClick={() => {
+            incomingRequest.files
+              .filter(file => acceptedFiles.includes(file.filename))
+              .forEach(file => {
+                fetch(`http://${incomingRequest.from_ip}:8000/send-path`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    path: file.path,
+                    target_ip: me.ip
+                  })
                 })
               })
-            })
             setIncomingRequest(null)
+            setAcceptedFiles([])
           }}>Accetta</button>
         </div>
       )}
