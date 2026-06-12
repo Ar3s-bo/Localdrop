@@ -25,3 +25,5 @@ dist-ssr
 
 # Rust build output
 target/
+# Python virtual environment
+venv/
