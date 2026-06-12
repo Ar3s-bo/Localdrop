@@ -2,7 +2,7 @@
 
 **Peer-to-peer file transfer on your local network — no internet, no cables, no accounts.**
 
-![AirDrop Locale UI](./airdrop_locale_preview.png)
+![AirDrop Locale UI](./airdrop_local.png)
 
 Devices on the same Wi-Fi discover each other automatically. Select a file, pick a device, send. That's it.
 
